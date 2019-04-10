@@ -53,4 +53,5 @@ license = "MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-#plcnext-sys = "0.1.0"
+plcnext-sys = { path = "../plcnext-sys"}
+# plcnext-sys = "0.1.0"
