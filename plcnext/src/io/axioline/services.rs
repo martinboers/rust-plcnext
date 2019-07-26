@@ -1,3 +1,5 @@
+mod error;
+
 cpp!{{
     #include "Arp/Io/Axioline/Services/IAxioMasterService.hpp"
     #include "Arp/Io/Axioline/Services/IAcyclicCommunicationService.hpp"
@@ -15,8 +17,16 @@ pub struct PdiParam {
     pub subindex: u8,
 }
 
+#[repr(C)]
+struct PdiError {
+    error_code: u16,
+    add_info: u16,
+}
+
 cpp_class!(pub unsafe struct AxioMasterService as "IAxioMasterService::Ptr");
 cpp_class!(pub unsafe struct AcyclicCommunicationService as "IAcyclicCommunicationService::Ptr");
+
+// TODO: Add error codes.
 
 impl AxioMasterService {
     pub fn get_service() -> Self {
@@ -25,6 +35,7 @@ impl AxioMasterService {
         })
     }
 
+    // TODO: Change the return value to the "response"
     pub fn axio_control(&self, request: Vec<u16>, response: &mut Vec<u16>) -> u16 {
         cpp!(unsafe [self as "const IAxioMasterService::Ptr*",
                      request as "std::vector<uint16>",
@@ -171,8 +182,6 @@ impl AxioMasterService {
             return m_Result.ErrorCode;
         })
     }
-
-    // TODO: Check if the remaining functions are necessary ...
 
     // This service loads the mapping for the internal DMA controller. Use this service to
     // assign the process data to the PD RAM interface.
