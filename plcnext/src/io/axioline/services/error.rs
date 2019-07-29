@@ -13,20 +13,6 @@ use std::fmt;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
-// Define a structure for the error texts
-#[derive(Debug)]
-struct Message {
-    error: &'static str,
-    info: String,
-    remedy: &'static str,
-}
-
-impl fmt::Display for Message {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
-    }
-}
-
 // Store static texts in a lookup table
 lazy_static! {
     // Error messages
@@ -135,7 +121,7 @@ lazy_static! {
         map.insert(0x0C15, "The module ID does not correspond to the configured value.");
 
 
-            // PDI service
+        // PDI service
         map.insert(0x0201, "Unable to access the object. Possible causes: \
                             (a) Module not present, (b) Incorrect module number.");
         map.insert(0x0200, "Error in the communication relationship.");
@@ -317,7 +303,6 @@ lazy_static! {
     // Additional info
     static ref INFO: HashMap<u16, &'static str> = {
         let mut map = HashMap::new();
-        map.insert(0x0000, "No detailed information on the cause of error.");
         map.insert(0x0010, "Service parameter with invalid value.");
         map.insert(0x0011, "Subindex not available.");
         map.insert(0x0012, "Object access is not a request.");
@@ -381,312 +366,72 @@ impl AxiolineError {
 
 impl fmt::Display for AxiolineError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let msb:u8 = ((&self.error_code & 0xFF00) >> 8) as u8;
-        let lsb:u8 = (&self.error_code & 0x00FF) as u8;
         let info = &self.add_info;
 
-        // Since there may be several messages for one error,
-        // use a vector to store messages and then join them at the end.
-        let mut error: Vec<String> = vec![];     // Error text
-        let mut add_info_used = false;  // Indicates that add_info contains an error-specific value
+        // Use a vector to store message parts
+        let mut error: Vec<String> = vec![];
 
-        let blah = match &self.error_code {
-            // Error codes for user errors and bus diagnostics
-            0x0908 => format!("Code of failed service: 0x{0:04X}", info),
-            //     0x0A => error.push(String::from("The number of parameters is inconsistent with the service. \
-            //                         The Parameter_Count parameter does not agree with the number of subsequent words. \
-            //                         'add_info' contains value transmitted in Parameter_Count.")),
-            //     0x13 => error.push(String::from("The service called is not supported. \
-            //                         'add_info' contains code of failed service.")),
-            //     0x17 => error.push(String::from("Service decoding failed. Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact.
-            //                         'add_info' contains code of failed service.")),
-            //     0x18 => error.push(String::from("Call of an unknown service code. \
-            //                         'add_info' contains code of the unknown service.")),
-            //     0x28 => error.push(String::from("An exclusive service was to be executed without the appropriate rights. \
-            //                         Wait for the exclusive rights to be enabled.")),
-            //     0x32 => error.push(String::from("Attempt to pass on the exclusive rights without having these rights.")),
-            //     0x33 => error.push(String::from("Another node has currently the exclusive rights. \
-            //                         Wait for the exclusive rights to be enabled.")),
-            //     0x34 => error.push(String::from("The node already has the exclusive rights.")),
-            //     0x37 => error.push(String::from("Unknown Variable_ID component. \
-            //                         'add_info' contains faulty Variable_ID.")),
-            //     0x38 => error.push(String::from("An internal Variable_ID was used. \
-            //                         'add_info' contains reserved Variable_ID.")),
-            //     0x39 => error.push(String::from("The Variable_ID is not enabled. (Password protection). \
-            //                         'add_info' contains variable_ID not enabled.")),
-            //     0x3A => error.push(String::from("Length specification in the Variable_ID is 0 or incorrect. \
-            //                         'add_info' contains incorrect Variable_ID.")),
-            //     0x3B => error.push(String::from("The number of variables has been calculated incorrectly. \
-            //                         'add_info' contains incorrect Variable_Count.")),
-            //     _ => ()
-            // },
-
-            // 0x0A => match lsb {
-            //     0x01 => error.push(String::from("A hardware or firmware error occurred. Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact.")),
-            //     0x02 => error.push(String::from("A service was called that is not permitted in the current status of the local bus master. \
-            //                         Set the local bus master to the required state. \
-            //                         'add_info' contains current status of the local bus master.")),
-            //     0x03 => error.push(String::from("Memory problem (e.g., buffer too small). Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact.")),
-            //     0x04 => error.push(String::from("Inconsistent parameters.")),
-            //     0x05 => error.push(String::from("Invalid parameters.")),
-            //     0x06 => error.push(String::from("Access not supported.")),
-            //     0x07 => error.push(String::from("Object does not exist.")),
-            //     0x08 => error.push(String::from("Maximum number of permitted parallel SM services exceeded. (Processing conflict). \
-            //                         Wait for the service called previously to be completed, and then try again. \
-            //                         'add_info' contains code of failed service.")),
-            //     0x0C => error.push(String::from("Call of Set_Value or Read_Value with a Variable_ID that contains an unknown code. \
-            //                         'add_info' contains unknown Variable_ID.")),
-            //     0x0D => error.push(String::from("A firmware error occurred. Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact.")),
-            //     0x18 => error.push(String::from("A reserved bit is set in Used_Attributes. \
-            //                         'add_info' contains invalid Used_Attributes parameter.")),
-            //     0x19 => error.push(String::from("The end of the frame was exceeded when accessing the configuration or line 0 was accessed. \
-            //                         'add_info' contains number of bus devices.")),
-            //     0x1A => error.push(String::from("The frame reference specified for the service does not exist. \
-            //                         'add_info' contains invalid Frame_Reference (if specified).")),
-            //     0x1C => error.push(String::from("Maximum number of devices exceeded. \
-            //                         'add_info' contains number of connected devices.")),
-            //     0x2F => error.push(String::from("Number of devices is zero. Connect the device and check the connection.")),
-            //     0x51 => error.push(String::from("A frame reference from 1 to 254 is permitted only. \
-            //                         Currently, the value 1 is permitted only.")),
-            //     0x54 => error.push(String::from("The maximum number of I/O points was exceeded. \
-            //                         Reduce the number of I/O points to the maximum number. \
-            //                         To obtain the exact number, please refer to the documentation for your controller.")),
-            //     0x60 => error.push(String::from("No configuration frames could be assigned. Create the configuration frame.")),
-            //     0x70 => error.push(String::from("A reserved bit has been set in the Diag_Info attribute.")),
-            //     0x73 => error.push(String::from("Device present with a chip version in the local bus that is not supported. \
-            //                         'add_info' contains device number.")),
-            //     0x74 => error.push(String::from("Device of a manufacturer that is not supported present in the local bus. \
-            //                         'add_info' contains device number.")),
-            //     0x75 => error.push(String::from("Device is indicating a serious error (e. g., faulty EEPROM). Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact. \
-            //                         'add_info' contains device number.")),
-            //     0x76 => error.push(String::from("The topology used by the device is not supported by the master. Replace the device. \
-            //                         'add_info' contains device number.")),
-            //     0x77 => error.push(String::from("Error at the interface. Check the connection between the electronics module and bus base module. \
-            //                         'add_info' contains device number.")),
-            //     0x7A => error.push(String::from("Invalid Dev_Type specified during loading.")),
-            //     0x7B => error.push(String::from("Invalid Dev_ID specified during loading.")),
-            //     0x7C => error.push(String::from("Invalid Dev_Length specified during loading.")),
-            //     0x81 => error.push(String::from("Service (e.g, Create_Configuration) could not be executed \
-            //                         due to PDI communication malfunctions (timeout). Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact. \
-            //                         'add_info' contains object index.")),
-            //     0x82 => error.push(String::from("Service (e.g, Create_Configuration) could not be executed \
-            //                         due to PDI communication malfunctions (number). Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact. \
-            //                         'add_info' contains object index.")),
-            //     0x83 => error.push(String::from("Service (e.g, Create_Configuration) could not be executed \
-            //                         due to PDI communication malfunctions (error). Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact. \
-            //                         'add_info' contains object index.")),
-            //     0x90 => error.push(String::from("Device was selected for synchronization, however it does not support this. \
-            //                         Select a device that supports synchronization or change the selection. \
-            //                         'add_info' contains device number.")),
-            //     0x91 => error.push(String::from("Device was selected for synchronization, however it does not support the specified cycle time. \
-            //                         Select a different cycle time or a different device. \
-            //                         'add_info' contains device number.")),
-            //     0x92 => error.push(String::from("Device was selected for synchronization, but does not support the specified value for Input_Delay. \
-            //                         Select a different value for Input_Delay or a different device. \
-            //                         'add_info' contains device number.")),
-            //     0x93 => error.push(String::from("Device was selected for synchronization, but does not support the specified value for Output_Delay. \
-            //                         Select a different value for Output_Delay or a different device. \
-            //                         'add_info' contains device number.")),
-            //     0x94 => error.push(String::from("Device was selected for synchronization, but does not support the \
-            //                         specified values for Input_Delay and Output_Delay. \
-            //                         Selected different values for Input_Delay and Output_Delay or a different device. \
-            //                         'add_info' contains device number.")),
-            //     0xFF => error.push(String::from("Call of Reset_Driver during PDI communication. Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact.")),
-            //     _ => ()
-            // },
-
-            // 0x0B => match lsb {
-            //     0x01 | 0x02 | 0x03 | 0x04 | 0x0C => error.push(String::from("A hardware or firmware error occurred. Restart the device. \
-            //                                              If the problem still occurs, please contact Phoenix Contact.")),
-            //     0x05 => error.push(String::from("Invalid parameters.")),
-            //     0x06 => error.push(String::from("Access not supported. (E.g., write protection). Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact.")),
-            //     0x07 => error.push(String::from("Object does not exist. Restart the device. \
-            //                         If the problem still occurs, please contact Phoenix Contact.")),
-            //     0xC1 => error.push(String::from("Supply voltage not available for the local bus. Too many devices connected \
-            //                         or the higher-level power supply unit is too weak. \
-            //                         Use a suitable power supply unit. \
-            //                         Check the power consumption of the devices; if required, use a power module \
-            //                         for communications power or install a further Axioline F station.")),
-            //     0xDE => error.push(String::from("Synchronization failed. Trigger signal does not correspond to the specification. \
-            //                         Check the synchronization signal of the higher-level system. \
-            //                         Make sure that the cycle time specification is properly selected.")),
-            //     0xD1 | 0xF1 | 0xF2 | 0xF3 => error.push(String::from("The bus could not be activated due to bus malfunctions.")),
-            //     _ => ()
-            // },
-
-            // 0x0C => match lsb {
-            //     0x01 => error.push(String::from("The configured module is not accessible. \
-            //                         A device present in the configuration frame has been removed from the \
-            //                         physical bus structure after the configuration frame has been connected. \
-            //                         Adapt the configuration frame if the modification was done on purpose.
-            //                         'add_info' contains device number.")),
-            //     0x02 => error.push(String::from("A module has been detected that was not configured. \
-            //                         An additional device was added at the end of the \
-            //                         physical bus structure after the configuration frame was connected. \
-            //                         Adapt the configuration frame if the modification was done on purpose.
-            //                         'add_info' contains device number.")),
-            //     0x11 => error.push(String::from("The module is not located in the configured slot. \
-            //                         An active device was inserted at the different location of the physical \
-            //                         bus structure after the configuration frame was connected. \
-            //                         Adapt the configuration frame if the modification was done on purpose.
-            //                         'add_info' contains device number.")),
-            //     0x12 => error.push(String::from("The module is accessible but was not put into operation due to missing parameters. \
-            //                         An active device was replaced by an unknown device in the physical \
-            //                         bus structure after the configuration frame was connected (wrong instance ID). \
-            //                         Adapt the configuration frame if the modification was done on purpose.
-            //                         'add_info' contains device number.")),
-            //     0x13 => error.push(String::from("The process data length does not correspond to the configured value. \
-            //                         The process data width of an active device was changed after the \
-            //                         configuration frame was connected. \
-            //                         Adapt the configuration frame if the modification was done on purpose.
-            //                         'add_info' contains device number.")),
-            //     0x14 => error.push(String::from("The module type does not correspond to the configured value. \
-            //                         Adapt the configuration frame if the modification was done on purpose.
-            //                         'add_info' contains device number.")),
-            //     0x15 => error.push(String::from("The module ID does not correspond to the configured value. \
-            //                         Adapt the configuration frame if the modification was done on purpose.
-            //                         'add_info' contains device number.")),
-            //     _ => ()
-            // },
-
-            // // Error codes when calling the PDI services
-            // 0x02 => { error.push(String::from("Error in the communication relationship."));
-            //     match lsb {
-            //         0x01 => error.push(String::from("Unable to access the object. Possible causes: \
-            //                             (a) Module not present, (b) Incorrect module number.")),
-            //         _ => ()
-            //     };
-            // },
-            // 0x05 => { error.push(String::from("Faulty Service."));
-            //     match lsb {
-            //         0x01 => error.push(String::from("The current object state prevents the service from being executed.")),
-            //         0x02 => error.push(String::from("Problem with the PDU size and/or permissible length exceeded. \
-            //                             Object cannot be read completely.")),
-            //         0x03 => error.push(String::from("The service cannot be executed at present.")),
-            //         0x04 => error.push(String::from("The service contains inconsistent parameters.")),
-            //         0x05 => error.push(String::from("A parameter has an invalid value.")),
-            //         _ => ()
-            //     };
-            // },
-            // 0x06 => { error.push(String::from("Faulty access."));
-            //     match lsb {
-            //         0x01 => error.push(String::from("Invalid object.")),
-            //         0x02 => error.push(String::from("Hardware fault.  Eliminate the hardware error \
-            //                             (e.g., I/O voltage not present). Restart the device. \
-            //                             If the problem still occurs, please contact Phoenix Contact.")),
-            //         0x03 => error.push(String::from("Access to object denied.")),
-            //         0x04 => error.push(String::from("Access to an invalid address.")),
-            //         0x05 => error.push(String::from("Inconsistent object attribute.")),
-            //         0x06 => error.push(String::from("The service used cannot be applied to this object.")),
-            //         0x07 => error.push(String::from("Object does not exist.")),
-            //         0x08 => error.push(String::from("Type conflict.")),
-            //         0x0A => error.push(String::from("Data not ready at present.")),
-            //         _ => ()
-            //     };
-            // },
-            // 0x08 => match lsb {
-            //     0x00 => { error.push(String::from("A reserved bit or reserved code was used during parameterization."));
-            //         match (info & 0x00FF) as u8 {
-            //             0x30 => {
-            //                 error.push(String::from("Most significant byte of 'add_info' contains the number of the affected elements."));
-            //                 add_info_used = true;
-            //             },
-            //             _ => ()
-            //         };
-            //     },
-            //     0x01 => error.push(String::from("Error reading or writing the object.")),
-            //     _ => ()
-            // },
-            // 0x0F => match lsb {
-            //     0x01 | 0x02 | 0x03 => error.push(String::from("Hardware or firmware error. Restart the device. \
-            //                                       If the problem still occurs, please contact Phoenix Contact.")),
-            //     0x04 => error.push(String::from("Inconsistent parameters.")),
-            //     0x05 => { 
-            //         error.push(String::from("Invalid parameters. 'add_info' contains PDI object index."));
-            //         add_info_used = true;
-            //     },
-            //     0x06 => {
-            //         error.push(String::from("Access not supported. 'add_info' contains PDI object index."));
-            //         add_info_used = true;
-            //     },
-            //     0x08 => {
-            //         error.push(String::from("Maximum number of permitted parallel PDI services exceeded. \
-            //                     'add_info' contains PDI object index. \
-            //                     Wait until the services have been processed."));
-            //         add_info_used = true;
-            //     },
-            //     0x0C => {
-            //         error.push(String::from("Incorrect variable ID for Set_Value or Read_Value. 'add_info' contains the unknown Variable_ID."));
-            //         add_info_used = true;
-            //     },
-            //     0x0D | 0x31 | 0x32 | 0x33 => error.push(String::from("Internal error. Restart the device. \
-            //                                              If the problem still occurs, please contact Phoenix Contact.")),
-            //     0x11 => error.push(String::from("Device not accessible (bus error). Check the bus configuration.")),
-            //     0x12 => error.push(String::from("Device cannot be reached (timeout). Check the device.")),
-            //     0x13 => error.push(String::from("Device not accessible because it was removed. Check the bus configuration.")),
-            //     0x21 => {
-            //         error.push(String::from("Invalid slot number (Value is 0 or larger than the maximum number of devices). \
-            //                     'add_info' contains the invalid device number."));
-            //         add_info_used = true;
-            //     },
-            //     0x22 => {
-            //         error.push(String::from("Slot is not active. 'add_info' contains the invalid device number."));
-            //         add_info_used = true;
-            //     },
-            //     0x23 => {
-            //         error.push(String::from("Invalid data length. 'add_info' contains the invalid data length."));
-            //         add_info_used = true;
-            //     },
-            //     0x24 => {
-            //         error.push(String::from("Invalid number of parameters. 'add_info' contains the invalid number of parameters."));
-            //         add_info_used = true;
-            //     },
-            //     _ => ()
-            _ => String::from("")
-        };
-
-        // Check if we need to add text related to add_info
-        if !add_info_used {
-            if let Some(text) = INFO.get(info) {
-                error.push(text.to_string());
-            }
+        // Get error message
+        if let Some(text) = ERROR.get(&self.error_code) {
+            error.push(text.to_string());
         }
 
-        // Get error text
-        let error = match ERROR.get(&self.error_code) {
-            Some(text) => text,
-            None => "",
+        // Get additional info message
+        match &self.error_code {
+            // User errors
+            0x0908 | 0x0913 | 0x0917 | 0x0A08 => error.push(format!("Code of failed service: 0x{0:04X}", &self.add_&self.add_info)),
+            0x090A => error.push(format!("Value transmitted in Parameter_Count: 0x{0:04X}", &self.add_&self.add_info)),
+            0x0918 => error.push(format!("Code of the unknown service: 0x{0:04X}", &self.add_&self.add_info)),
+            0x0937 => error.push(format!("Faulty Variable_ID: 0x{0:04X}", &self.add_info)),
+            0x0938 => error.push(format!("Reserved Variable_ID: 0x{0:04X}", &self.add_info)),
+            0x0939 => error.push(format!("Variable_ID not enabled: 0x{0:04X}", &self.add_info)),
+            0x093A => error.push(format!("Incorrect Variable_ID: 0x{0:04X}", &self.add_info)),
+            0x093B => error.push(format!("Incorrect Variable_Count: 0x{0:04X}", &self.add_info)),
+            0x0A02 => error.push(format!("Current status of the local bus master: 0x{0:04X}", &self.add_info)),
+            0x0A0C => error.push(format!("Unknown Variable_ID: 0x{0:04X}", &self.add_info)),
+            0x0A18 => error.push(format!("Invalid Used_Attributes parameter: 0x{0:04X}", &self.add_info)),
+            0x0A19 => error.push(format!("Number of bus devices: 0x{0:04X}", &self.add_info)),
+            0x0A1A => error.push(format!("Invalid Frame_Reference (if specified): 0x{0:04X}", &self.add_info)),
+            0x0A1C => error.push(format!("Number of connected devices: 0x{0:04X}", &self.add_info)),
+            0x0A73 | 0x0A74 | 0x0A75 | 0x0A76 | 0x0A77 | 0x0A90 | 0x0A91 | 0x0A92 | 0x0A93 | 0x0A94
+                => error.push(format!("Device number: 0x{0:04X}", &self.add_info)),
+            0x0A81 | 0x0A82 | 0x0A83 => error.push(format!("Object index: 0x{0:04X}", &self.add_info)),
+
+            // Bus diagnostics
+            0x0C01 | 0x0C02 | 0x0C11 | 0x0C12 | 0x0C13 | 0x0C14 | 0x0C15 
+                => error.push(format!("Device number: 0x{0:04X}", &self.add_info)),
+
+            // PDI service
+            0x0800 =>  match (&self.add_info & 0x00FF) as u8 {
+                0x30 => error.push(format!("Number of the affected elements: 0x{0:02X}", (&self.add_info & 0xFF00) >> 8)),
+                _ => if let Some(text) = INFO.get(&self.add_info) {
+                    error.push(text.to_string());
+                }
+            }
+            0x0F05 | 0x0F06 | 0x0F08 => error.push(format!("PDI object index: 0x{0:04X}", &self.add_info)),
+            0x0F0C => error.push(format!("Unknown Variable_ID: 0x{0:04X}", &self.add_info)),
+            0x0F21 | 0x0F22 => error.push(format!("Invalid device number: 0x{0:04X}", &self.add_info)),
+            0x0F23 => error.push(format!("Invalid data length: 0x{0:04X}", &self.add_info)),
+            0x0F24 => error.push(format!("Invalid number of parameters: 0x{0:04X}", &self.add_info)),
+
+            // Default - get additional info text from lookup table
+            _ => if let Some(text) = INFO.get(&self.add_info) {
+                error.push(text.to_string());
+            }
         };
 
-        // Get remedy text
-        let remedy = match REMEDY.get(&self.error_code) {
-            Some(text) => text,
-            None => "",
-        };
+        // Get remedy message
+        if let Some(text) = REMEDY.get(&self.error_code) {
+            error.push(text.to_string());
+        }
 
-        // Get additional info text
+        // Set a default message if necessary
+        if error.is_empty() {
+            error.push(String::from("No information on the cause of the error."));
+        }
 
-
-        // Construct the message
-            let my_error = Message {
-                error: error,
-                info: String::from("hello"),
-                remedy: remedy
-            };
-
-        write!(f, "{} {}", self, my_error)
-
-
+        // Construct the complete message
+        write!(f, "{}", error.join(" "))
     }
 }
 
