@@ -379,9 +379,9 @@ impl fmt::Display for AxiolineError {
         // Get additional info message
         match &self.error_code {
             // User errors
-            0x0908 | 0x0913 | 0x0917 | 0x0A08 => error.push(format!("Code of failed service: 0x{0:04X}", &self.add_&self.add_info)),
-            0x090A => error.push(format!("Value transmitted in Parameter_Count: 0x{0:04X}", &self.add_&self.add_info)),
-            0x0918 => error.push(format!("Code of the unknown service: 0x{0:04X}", &self.add_&self.add_info)),
+            0x0908 | 0x0913 | 0x0917 | 0x0A08 => error.push(format!("Code of failed service: 0x{0:04X}", &self.add_info)),
+            0x090A => error.push(format!("Value transmitted in Parameter_Count: 0x{0:04X}", &self.add_info)),
+            0x0918 => error.push(format!("Code of the unknown service: 0x{0:04X}", &self.add_info)),
             0x0937 => error.push(format!("Faulty Variable_ID: 0x{0:04X}", &self.add_info)),
             0x0938 => error.push(format!("Reserved Variable_ID: 0x{0:04X}", &self.add_info)),
             0x0939 => error.push(format!("Variable_ID not enabled: 0x{0:04X}", &self.add_info)),
