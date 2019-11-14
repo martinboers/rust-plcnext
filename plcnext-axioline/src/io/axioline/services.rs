@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate cpp;
-
 mod error;
 
 cpp!{{
