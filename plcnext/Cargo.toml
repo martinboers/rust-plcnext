@@ -7,7 +7,7 @@ edition = "2018"
 description = "Allows access to PLCnext Control system services"
 # documentation = "..."
 homepage = "https://www.phoenixcontact.com"
-repository = "https://github.com/plcnext"
+repository = "https://github.com/martinboers/rust-plcnext"
 readme = "README.md"
 
 # This is a list of up to five keywords that describe this crate. Keywords
@@ -53,6 +53,5 @@ license = "MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-# plcnext-sys = "0.1.0"
 plcnext-sys = { path = "../plcnext-sys"}
 lazy_static = "1.3.0"

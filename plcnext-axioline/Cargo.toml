@@ -1,5 +1,5 @@
 [package]
-name = "plcnext"
+name = "plcnext-axioline"
 version = "0.1.0"
 authors = ["Martin Boers <mboers@phoenixcontact.com>"]
 edition = "2018"
@@ -54,10 +54,6 @@ license = "MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-# plcnext-sys = "0.1.0"
-plcnext-sys = { path = "../plcnext-sys"}
-regex = "1.1.6"
-lazy_static = "1.3.0"
 cpp = "0.5"
 
 [build-dependencies]

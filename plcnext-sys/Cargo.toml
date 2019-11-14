@@ -8,7 +8,7 @@ build = "build/main.rs"
 description = "Allows access to PLCnext Control system services"
 # documentation = "..."
 homepage = "https://www.phoenixcontact.com"
-repository = "https://github.com/plcnext"
+repository = "https://github.com/martinboers/rust-plcnext"
 readme = "README.md"
 
 # This is a list of up to five keywords that describe this crate. Keywords
@@ -19,7 +19,7 @@ keywords = ["Industrial", "Automation", "PLC", "PLCnext", "Phoenix"]
 # This is a list of up to five categories where this crate would fit.
 # Categories are a fixed list available at crates.io/category_slugs, and
 # they must match exactly.
-categories = ["external-ffi-bindings", "hardware-support", "os", "science::robotics", "embedded"]
+categories = ["external-ffi-bindings", "science::robotics", "embedded"]
 
 # This is an SPDX 2.1 license expression for this package.  Currently
 # crates.io will validate the license provided against a whitelist of
