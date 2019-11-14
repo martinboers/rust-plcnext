@@ -3,6 +3,7 @@ name = "plcnext"
 version = "0.1.0"
 authors = ["Martin Boers <mboers@phoenixcontact.com>"]
 edition = "2018"
+build = "build/main.rs"
 
 description = "Allows access to PLCnext Control system services"
 # documentation = "..."
@@ -18,7 +19,7 @@ keywords = ["Industrial", "Automation", "PLC", "PLCnext", "Phoenix"]
 # This is a list of up to five categories where this crate would fit.
 # Categories are a fixed list available at crates.io/category_slugs, and
 # they must match exactly.
-categories = ["external-ffi-bindings", "science::robotics", "embedded"]
+categories = ["external-ffi-bindings", "hardware-support", "os", "science::robotics", "embedded"]
 
 # This is an SPDX 2.1 license expression for this package.  Currently
 # crates.io will validate the license provided against a whitelist of
@@ -55,4 +56,9 @@ maintenance = { status = "experimental" }
 [dependencies]
 # plcnext-sys = "0.1.0"
 plcnext-sys = { path = "../plcnext-sys"}
+regex = "1.1.6"
 lazy_static = "1.3.0"
+cpp = "0.5"
+
+[build-dependencies]
+cpp_build = "0.5"
