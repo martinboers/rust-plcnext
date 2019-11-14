@@ -1,6 +1,6 @@
 [package]
 name = "plcnext"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Martin Boers <mboers@phoenixcontact.com>"]
 edition = "2018"
 
