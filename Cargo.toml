@@ -1,5 +1,8 @@
 [workspace]
 members = [
     "plcnext",
-    "plcnext-sys"
+    "plcnext-sys",
+    "plcnext-commons",
+    "plcnext-device",
+    "plcnext-axioline"
 ]

@@ -1,8 +1,9 @@
 [package]
-name = "plcnext"
-version = "0.2.0"
+name = "plcnext-axioline"
+version = "0.1.0"
 authors = ["Martin Boers <mboers@phoenixcontact.com>"]
 edition = "2018"
+build = "build/main.rs"
 
 description = "Allows access to PLCnext Control system services"
 documentation = "https://github.com/PLCnext/rust-sample-runtime"
@@ -60,5 +61,8 @@ exclude = [
 maintenance = { status = "experimental" }
 
 [dependencies]
-plcnext-sys = "0.2.0"
+cpp = "0.5"
 lazy_static = "1.3.0"
+
+[build-dependencies]
+cpp_build = "0.5"

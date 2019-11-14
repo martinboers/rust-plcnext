@@ -1,8 +1,9 @@
 [package]
-name = "plcnext"
-version = "0.2.0"
+name = "plcnext-commons"
+version = "0.1.0"
 authors = ["Martin Boers <mboers@phoenixcontact.com>"]
 edition = "2018"
+build = "build/main.rs"
 
 description = "Allows access to PLCnext Control system services"
 documentation = "https://github.com/PLCnext/rust-sample-runtime"
@@ -60,5 +61,7 @@ exclude = [
 maintenance = { status = "experimental" }
 
 [dependencies]
-plcnext-sys = "0.2.0"
-lazy_static = "1.3.0"
+cpp = "0.4"
+
+[build-dependencies]
+cpp_build = "0.4"
