@@ -2,7 +2,6 @@
 
 // Include plcnext services
 pub mod device;
-pub mod io;
 mod error;
 
 use error::Result;
